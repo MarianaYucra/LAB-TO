@@ -1,0 +1,79 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+abstract class Planta {
+    # nombre_ : string
+    # cientifico_ : string
+    # altura_ : double
+    # precio_ : double
+    # cuidados_ : unique_ptr<Cuidados>
+    + Planta(otra : Planta)
+    + {abstract} clone() : Planta
+    + {abstract} sector() : Sector
+    + {abstract} atributos() : string
+    + setNombre(nombre) : void
+    + setAltura(altura) : void
+    + setPrecio(precio) : void
+    + mostrar() : void
+}
+
+class Cuidados {
+    + riegoCadaDias : int
+    + luz : string
+    + nota : string
+}
+
+class Trepadora {
+    - soporte_ : string
+    + clone() : Planta
+}
+
+class ArbolNormal {
+    - alturaAdulta_ : double
+    + clone() : Planta
+}
+
+class Ornamental {
+    - colorFlor_ : string
+    + clone() : Planta
+}
+
+class Bonsai {
+    - estilo_ : string
+    - edad_ : int
+    + clone() : Planta
+}
+
+class CatalogoPrototipos {
+    - prototipos_ : vector
+    + registrar(clave, prototipo) : void
+    + prototipo(i) : Planta
+    + crear(i) : Planta
+}
+
+class Vivero {
+    - sectores_ : map
+    + agregar(planta) : void
+    + mostrar() : void
+}
+
+enum Sector {
+    Trepadoras
+    ArbolesNormales
+    Ornamentales
+    Bonsais
+}
+
+Planta <|-- Trepadora
+Planta <|-- ArbolNormal
+Planta <|-- Ornamental
+Planta <|-- Bonsai
+
+Planta "1" *-- "1" Cuidados : tiene
+CatalogoPrototipos "1" o-- "*" Planta : prototipos
+Vivero "1" o-- "*" Planta : agrupa por sector
+
+Planta ..> Sector
+Vivero ..> Sector
+CatalogoPrototipos ..> Planta : clone()
+@enduml
