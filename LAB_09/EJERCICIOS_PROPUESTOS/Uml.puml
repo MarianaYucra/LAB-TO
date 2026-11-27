@@ -1,0 +1,83 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+abstract class Cuenta {
+    - id_ : string
+    - titulares_ : vector<string>
+    - saldo_ : double
+    - tasa_ : double
+    + {abstract} tipo() : string
+    + {abstract} rango() : RangoTasa
+    + retirar(monto, fecha, desc) : bool
+    + depositar(monto, fecha, desc) : void
+    + aplicarInteres(fecha) : void
+    + saldoAl(corte) : double
+    + esTitular(cliente) : bool
+}
+
+class CuentaAhorro
+class CuentaJoven
+class CuentaPlus
+class CuentaEmpresarial
+class CuentaSueldo
+
+class TarjetaCredito {
+    - limite_ : double
+    + retirar(monto, fecha, desc) : bool
+}
+
+class PrestamoPersonal {
+    - mesesRestantes_ : int
+    + cuota() : double
+    + cuotaPagada() : void
+}
+
+class RepositorioCuentas <<singleton>> {
+    - cuentas_ : map
+    - tipos_ : map
+    - mtx_ : mutex
+    - RepositorioCuentas()
+    + {static} instancia() : RepositorioCuentas&
+    + registrarTipo(nombre, fabrica) : void
+    + abrir(solicitud) : Cuenta
+    + buscar(id) : Cuenta
+    + cuentasDe(titular) : vector
+    + cierreDeMes(fecha) : void
+}
+
+class Sesion {
+    - cliente_ : string
+    + abrirCuenta(solicitud) : Cuenta
+    + depositar(id, monto, fecha) : void
+    + retirar(id, monto, fecha, desc) : bool
+    + transferir(origen, destino, monto, fecha) : bool
+    + pagarDeuda(origen, deuda, monto, fecha) : bool
+    + liquidarDeuda(origen, deuda, fecha) : bool
+    + estadoDeCuenta(corte) : string
+    + estadoDeCuenta(corte, tipo) : string
+}
+
+class Solicitud {
+    + tipo
+    + id
+    + titulares
+    + tasa
+    + limite
+    + calificacion
+    + plazo
+    + fecha
+}
+
+Cuenta <|-- CuentaAhorro
+Cuenta <|-- CuentaJoven
+Cuenta <|-- CuentaPlus
+Cuenta <|-- CuentaEmpresarial
+Cuenta <|-- CuentaSueldo
+Cuenta <|-- TarjetaCredito
+Cuenta <|-- PrestamoPersonal
+
+RepositorioCuentas "1" o-- "*" Cuenta : guarda
+Sesion "*" ..> "1" RepositorioCuentas : usa instancia()
+Sesion ..> Solicitud
+RepositorioCuentas ..> Solicitud
+@enduml
